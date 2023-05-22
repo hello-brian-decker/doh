@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 import inspect
+import commands
 
 
 class DockerMeta:
@@ -13,11 +14,10 @@ class DockerMeta:
         self.users = self.get_users()
 
     def installed_packages(self):
-        ignored_applications = []
-        applications = self.container.exec_run("apt list | awk -F/ '{print $1}'")
-        application_versions = self.container.exec_run("awk -F\"[{}]\" '/Test Machine/{print $2}'")
+        applications = self.container.exec_run(commands.application_list)
+        application_versions = self.container.exec_run(commands.application_versions)
         application_map = dict(zip(applications, application_versions))
-        for app in ignored_applications:
+        for app in commands.ignored_applications:
             if app in application_map:
                 try:
                     del application_map[app]
@@ -30,9 +30,6 @@ class DockerMeta:
         ...
 
     def get_users(self):
-        ignored_users = ['root', 'daemon', 'bin', 'sys', 'sync', 'games', 'man',
-                         'lp', 'mail', 'news', 'uucp', 'proxy', 'www-data',
-                         'backup', 'list', 'irc', 'gnats', 'nobody', '_apt']
-        users = self.container.exec_run("cat /etc/passwd | awk - F: '{ print $1}'")
-        installed_users = list(set(users) - set(ignored_users))
+        users = self.container.exec_run(commands.users)
+        installed_users = list(set(users) - set(commands.ignored_users))
         return installed_users
