@@ -23,7 +23,7 @@ class DockerMeta:
                     del application_map[app]
                 except KeyError as e:
                     frame = inspect.currentframe()
-                    logging.error(f'ERROR: {frame.f_code.co_name} - {e}')
+                    logging.error(f'{frame.f_code.co_name} - {e}')
         return application_map
 
     def parse_scripts(self):
